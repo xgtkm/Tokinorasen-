@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>時の螺旋 | MDX88888</title>
+
+  <!-- 🔐 セキュリティヘッダー（CSP） -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    img-src 'self' data:;
+    style-src 'self' 'unsafe-inline';
+    script-src 'self';
+    base-uri 'self';
+    form-action 'self';
+    frame-ancestors 'none';
+    upgrade-insecure-requests;
+  ">
+
+  <style>
+    :root{
+      --bg:#05070c;
+      --fg:#e9eef7;
+      --muted:#9aa6b2;
+      --gold:#ffd86b;
+      --max:1100px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+    }
+
+    /* ===== HEADER ===== */
+    header{
+      position:fixed; top:0; width:100%;
+      backdrop-filter: blur(12px);
+      background: rgba(5,7,12,0.55);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      z-index:50;
+    }
+    .nav{
+      max-width: var(--max);
+      margin:0 auto;
+      padding:14px 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+    }
+    .brand{display:flex; flex-direction:column; line-height:1.05;}
+    .brand-title{font-weight:800; letter-spacing:.06em; font-size:15px;}
+    .brand-sub{margin-top:3px; font-size:11px; letter-spacing:.12em; color:rgba(233,238,247,0.65);}
+
+    nav a{
+      color:var(--fg);
+      text-decoration:none;
+      margin:0 10px;
+      font-size:14px;
+      opacity:.9;
+    }
+    nav a:hover{opacity:1}
+
+    .right-links a{
+      margin-left:12px;
+      color:var(--fg);
+      text-decoration:none;
+      font-size:14px;
+      opacity:.9;
+    }
+    .right-links a:hover{opacity:1}
+
+    @media (max-width: 820px){
+      nav{display:none;}
+    }
+
+    /* ===== HERO (融合) ===== */
+    .hero{
+      min-height:100vh;
+      padding-top:70px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position:relative;
+      overflow:hidden;
+    }
+    .hero-bg{
+      position:absolute; inset:0;
+      background-image: url("top.png");
+      background-size: cover;
+      background-position: center;
+      filter: contrast(1.02) brightness(1.02);
+      transform: scale(1.02);
+      z-index:1;
+    }
+    .hero-vignette{
+      position:absolute; inset:0;
+      background:
+        radial-gradient(circle at center, rgba(0,0,0,0.10), rgba(0,0,0,0.70) 70%),
+        linear-gradient(to bottom, rgba(5,7,12,0.30), rgba(5,7,12,0.75));
+      z-index:2;
+    }
+
+    .clock-stage{
+      position:relative;
+      width:min(78vmin, 720px);
+      height:min(78vmin, 720px);
+      z-index:3;
+      display:grid;
+      place-items:center;
+    }
+
+    .center-disc{
+      position:absolute;
+      width: 62%;
+      height: 62%;
+      border-radius: 50%;
+      overflow:hidden;
+      box-shadow: 0 0 46px rgba(0,0,0,0.75);
+      border: 1px solid rgba(255,215,0,0.18);
+      z-index:4; /* 中央画像を確実に前へ */
+    }
+    .center-disc img{
+      width:100%; height:100%;
+      object-fit: cover;
+      display:block;
+      transform: scale(1.02);
+    }
+    .center-disc::after{
+      content:"";
+      position:absolute;
+      inset:-4px;
+      border-radius:50%;
+      border: 1px solid rgba(255,215,0,0.35);
+      box-shadow:
+        0 0 18px rgba(255,215,0,0.22),
+        0 0 44px rgba(255,215,0,0.12);
+      pointer-events:none;
+    }
+
+    #overlay{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      pointer-events:none;
+      z-index:5;
+    }
+
+    .time-label{
+      position:absolute;
+      bottom:-52px;
+      left:50%;
+      transform:translateX(-50%);
+      padding:10px 14px;
+      border-radius:999px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      color: var(--gold);
+      letter-spacing:.15em;
+      font-size:14px;
+      text-shadow: 0 0 16px rgba(255,215,0,0.22);
+      white-space:nowrap;
+      z-index:6;
+    }
+
+    /* ===== MAIN ===== */
+    main{
+      max-width:900px;
+      margin:0 auto;
+      padding: 80px 20px 40px;
+    }
+    section{margin:80px 0;}
+    section h2{
+      margin:0 0 10px;
+      font-size:20px;
+      letter-spacing:.02em;
+    }
+    section p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.8;
+    }
+
+    .links{
+      margin-top:14px;
+      display:grid;
+      gap:10px;
+    }
+    .linkbtn{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:12px 14px;
+      border-radius:14px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      color: var(--fg);
+      text-decoration:none;
+    }
+    .linkbtn:hover{background: rgba(255,255,255,0.10)}
+    .linkbtn span{color:var(--muted); font-size:13px}
+
+    footer{
+      text-align:center;
+      padding:40px 0 60px;
+      color: rgba(233,238,247,0.55);
+      font-size:12px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="nav">
+      <div class="brand">
+        <div class="brand-title">時の螺旋</div>
+        <div class="brand-sub">MDX88888 作</div>
+      </div>
+
+      <nav>
+        <a href="#works">作品</a>
+        <a href="#gallery">ギャラリー</a>
+        <a href="#author">著者</a>
+        <a href="#contact">お問い合わせ</a>
+      </nav>
+
+      <div class="right-links">
+        <a href="https://x.com/MDX88888" target="_blank" rel="noopener">X</a>
+        <a href="mailto:mizakid8888@gmail.com?subject=時の螺旋についてのお問い合わせ">Mail</a>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero" id="top">
+    <div class="hero-bg" aria-hidden="true"></div>
+    <div class="hero-vignette" aria-hidden="true"></div>
+
+    <div class="clock-stage" aria-label="時の螺旋 時計">
+      <!-- 中央画像は必ず表示 -->
+      <div class="center-disc">
+        <img src="top.png" alt="時の螺旋 中央画像">
+      </div>
+
+      <!-- 周囲の√だけ回転 -->
+      <canvas id="overlay"></canvas>
+
+      <div class="time-label" id="clockLabel">--:--:--</div>
+    </div>
+  </section>
+
+  <main>
+    <section id="works">
+      <h2>作品</h2>
+      <p>Amazon（時の螺旋 1〜5）</p>
+      <div class="links">
+        <a class="linkbtn" href="https://amzn.asia/d/07EiSKmS" target="_blank" rel="noopener">
+          <div>時の螺旋1</div><span>Amazonへ</span>
+        </a>
+        <a class="linkbtn" href="https://amzn.asia/d/0i9suwBI" target="_blank" rel="noopener">
+          <div>時の螺旋2</div><span>Amazonへ</span>
+        </a>
+        <a class="linkbtn" href="https://amzn.asia/d/01Tf2dCW" target="_blank" rel="noopener">
+          <div>時の螺旋3</div><span>Amazonへ</span>
+        </a>
+        <a class="linkbtn" href="https://amzn.asia/d/018dT626" target="_blank" rel="noopener">
+          <div>時の螺旋4</div><span>Amazonへ</span>
+        </a>
+        <a class="linkbtn" href="https://amzn.asia/d/04CYXWEF" target="_blank" rel="noopener">
+          <div>時の螺旋5</div><span>Amazonへ</span>
+        </a>
+      </div>
+    </section>
+
+    <section id="gallery">
+      <h2>ギャラリー</h2>
+      <p>展示、世界観、画像一覧などをここに追加できます。</p>
+    </section>
+
+    <section id="author">
+      <h2>著者</h2>
+      <p>
+        MDX88888<br>
+        無限と構造を重ね、時の螺旋を設計する存在。
+      </p>
+      <div class="links" style="margin-top:14px;">
+        <a class="linkbtn" href="https://x.com/MDX88888" target="_blank" rel="noopener">
+          <div>X（@MDX88888）</div><span>開く</span>
+        </a>
+      </div>
+    </section>
+
+    <section id="contact">
+      <h2>お問い合わせ</h2>
+      <p>メール、またはXからご連絡ください。</p>
+      <div class="links" style="margin-top:14px;">
+        <a class="linkbtn" href="mailto:mizakid8888@gmail.com?subject=時の螺旋についてのお問い合わせ">
+          <div>メール</div><span>mizakid8888@gmail.com</span>
+        </a>
+        <a class="linkbtn" href="https://x.com/MDX88888" target="_blank" rel="noopener">
+          <div>X</div><span>@MDX88888</span>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer>© MDX88888</footer>
+
+  <script>
+    const canvas = document.getElementById("overlay");
+    const ctx = canvas.getContext("2d");
+    const stage = document.querySelector(".clock-stage");
+    const label = document.getElementById("clockLabel");
+
+    function resize(){
+      const rect = stage.getBoundingClientRect();
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      canvas.width = Math.floor(rect.width * dpr);
+      canvas.height = Math.floor(rect.height * dpr);
+      canvas.style.width = rect.width + "px";
+      canvas.style.height = rect.height + "px";
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+    }
+    window.addEventListener("resize", resize);
+    resize();
+
+    function pseudoNoise(i){
+      return (Math.sin(i * 999.1) + Math.sin(i * 37.77) + 2) / 4; // 0..1
+    }
+
+    function drawGoldCheck(x, y, size, angle, glow){
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+
+      const grad = ctx.createLinearGradient(-size, -size, size, size);
+      grad.addColorStop(0,  "#fff7b2");
+      grad.addColorStop(0.3,"#ffd700");
+      grad.addColorStop(0.6,"#ffb700");
+      grad.addColorStop(1,  "#fff2a8");
+
+      const pulse = 0.85 + Math.sin(Date.now() * 0.002) * 0.15;
+      ctx.globalAlpha = pulse;
+
+      ctx.shadowColor = "rgba(255,215,0,0.95)";
+      ctx.shadowBlur  = size * glow;
+
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = size * 0.16;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+
+      ctx.beginPath();
+      ctx.moveTo(-size*0.34, size*0.10);
+      ctx.lineTo(0,         size*0.10);
+      ctx.lineTo(0,        -size*0.34);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    // 中央を“穴あけ”して、中央画像を邪魔しない
+    function punchHole(cx, cy, r){
+      ctx.save();
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // 最初の「ばらけた配置」＋今の「実時間同期回転」
+    const rings = [
+      { count: 18, rMin: 0.36, rMax: 0.46, size: 22, glow: 0.55, mode: "hours"   },
+      { count: 26, rMin: 0.50, rMax: 0.63, size: 26, glow: 0.70, mode: "minutes" },
+      { count: 34, rMin: 0.67, rMax: 0.92, size: 20, glow: 0.90, mode: "seconds" },
+    ];
+
+    function animate(){
+      const rect = stage.getBoundingClientRect();
+      const w = rect.width;
+      const h = rect.height;
+      const cx = w / 2;
+      const cy = h / 2;
+      const baseR = Math.min(w, h) / 2;
+
+      const now = new Date();
+      const ms = now.getMilliseconds();
+      const sec = now.getSeconds() + ms / 1000;
+      const min = now.getMinutes() + sec / 60;
+      const hr  = (now.getHours() % 12) + min / 60;
+
+      const pad = (n) => String(n).padStart(2,"0");
+      label.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+      ctx.clearRect(0,0,w,h);
+
+      const angS = (sec/60) * Math.PI * 2;
+      const angM = (min/60) * Math.PI * 2;
+      const angH = (hr /12) * Math.PI * 2;
+
+      // 中央画像より少し大きく穴あけ
+      const holeR = baseR * 0.33;
+
+      for (let rIdx=0; rIdx<rings.length; rIdx++){
+        const ring = rings[rIdx];
+
+        let ringAngle = angS;
+        if (ring.mode === "minutes") ringAngle = angM;
+        if (ring.mode === "hours")   ringAngle = angH;
+
+        for (let i=0; i<ring.count; i++){
+          const t = i / ring.count;
+
+          const n = pseudoNoise(i + rIdx * 100);
+          const jitter = (n - 0.5) * 0.22;
+          const theta = (t * Math.PI * 2) + jitter + ringAngle;
+
+          const rr = baseR * (ring.rMin + (ring.rMax - ring.rMin) * pseudoNoise(i * 3.1 + rIdx * 20));
+
+          const x = cx + Math.cos(theta) * rr;
+          const y = cy + Math.sin(theta) * rr;
+
+          const orient = theta + Math.PI / 2 + (pseudoNoise(i * 7.7) - 0.5) * 0.35;
+          const size = ring.size * (0.85 + pseudoNoise(i * 11.3) * 0.45);
+
+          drawGoldCheck(x, y, size, orient, ring.glow);
+        }
+      }
+
+      punchHole(cx, cy, holeR);
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    // 画像読み込み確認（表示されない時の切り分け）
+    const img = document.querySelector(".center-disc img");
+    img.addEventListener("error", () => {
+      alert("画像が読み込めません。index.html と同じフォルダに top.png があるか、ファイル名（大文字小文字含む）が一致しているか確認してください。");
+    });
+  </script>
+</body>
+</html>
